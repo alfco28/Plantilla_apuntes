@@ -9,8 +9,8 @@ independiente que usa esta plantilla como base.
 
 - **Compilar con XeLaTeX** (en Overleaf: *Menu → Compiler → XeLaTeX*).
 - Dos pasadas para que el índice y las referencias cruzadas se estabilicen.
-- Fuentes necesarias: *Latin Modern Roman* (texto) y *Fira Mono* (código),
-  ambas disponibles en Overleaf de serie.
+- Fuentes necesarias: *Fira Sans* (texto), *Fira Math* (fórmulas) y *Fira Mono*
+  (código), todas ellas sin serifa y a juego, disponibles en Overleaf de serie.
 
 ## Estructura
 
@@ -23,9 +23,13 @@ main_matter/
   tema_2.tex              Tema 2 (contenido de ejemplo: TikZ, tablas, algoritmos…)
 ```
 
+Los ficheros pueden estar en esas carpetas **o directamente sueltos en la
+raíz del proyecto**: `main.tex` los busca en su carpeta y, si no están
+ahí, los busca en la raíz, de modo que ambas disposiciones funcionan.
+
 ## Uso
 
-- **Cada tema es una sección**: los temas entran con `\input{main_matter/tema_N}`
+- **Cada tema es una sección**: los temas entran con `\inputtema{tema_N}`
   en `main.tex` (o simplemente escribe los temas directamente en un solo
   archivo, la plantilla no impone nada). El título y el índice muestran
   «Tema 1», «Tema 2», … automáticamente a partir del número de sección; la
@@ -40,7 +44,7 @@ main_matter/
 | Comando             | Por defecto      | Qué controla                                                  |
 |---------------------|------------------|---------------------------------------------------------------|
 | `\interlineado`     | `1.2`            | Interlineado de todo el documento (afecta a todos los tamaños de letra). |
-| `\sangriaentorno`   | `1.5em`          | Sangría francesa de los entornos (líneas 2.ª y siguientes).  |
+| `\sangriaentorno`   | `2em`            | Sangría francesa de los entornos (líneas 2.ª y siguientes).  |
 | `\reservaminima`    | `5\baselineskip` | Espacio mínimo que se reserva al empezar un entorno, para que un teorema y su demostración no queden separados por un salto de página. |
 
 ## Entornos
@@ -65,5 +69,8 @@ enunciado y su demostración, y aplica también la sangría francesa.
   los nombres ya están en castellano.
 - Las notas al margen (`\marginpar` o `marginnote`) sirven para
   mini-índices de términos y referencias cruzadas, como en el Diestel.
+- Los símbolos matemáticos los aporta *Fira Math* a través de
+  `unicode-math` (por eso la plantilla no carga `amssymb`); `\mathbb`,
+  `\mathcal`, etc. funcionan igual.
 - Pensada para imprimirse en A4 y en blanco y negro: evita colores salvo
   que aporten algo pedagógico.

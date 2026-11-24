@@ -12,7 +12,8 @@
 \usepackage{graphicx} %Required to insert images.
 \usepackage{listings} %Required to insert code.
 \usepackage[table]{xcolor} %Required to have coloured cells on a table.
-\usepackage{amssymb} %Para más símbolos de matemáticas.
+% Nota: amssymb NO se carga aquí: al usar unicode-math (más abajo) los
+% símbolos matemáticos los aporta la propia fuente matemática (Fira Math).
 \usepackage{amsmath} %Para más símbolos de matemáticas.
 \usepackage{amsthm} %Para entornos de teoremas, demostraciones y demás.
 \usepackage{tikz} %Para grafos y figuras.
@@ -35,7 +36,7 @@
 % siguientes, sangradas) que reciben todos los entornos de contenido.
 % Configurable en un único punto.
 \newlength{\sangriaentorno}
-\setlength{\sangriaentorno}{1.5em}
+\setlength{\sangriaentorno}{2em}
 % FIN ========== Sangría francesa de los entornos ==========
 
 % ========== Estilo de todos los entornos (sangría francesa) ==========
@@ -245,8 +246,18 @@
 }
 
 %"fontspec" package settings
-\setmainfont{Latin Modern Roman}
-\setmonofont{Fira Mono}
+% Texto sin serifa, a juego con la fuente del código (Fira Mono).
+\setmainfont{Fira Sans}
+\setsansfont{Fira Sans} %La \textsf es la misma fuente del texto
+% Fira Mono no tiene cursiva real: para los comentarios de código
+% (que Listings pide en \itshape) se fabrica una cursiva inclinada,
+% lo que evita el aviso «Font shape TU/FiraMono/m/it undefined».
+\setmonofont{Fira Mono}[ItalicFont={Fira Mono}, ItalicFeatures={FakeSlant=0.2}]
+% Fórmulas sin serifa: unicode-math se carga DESPUÉS de amsmath y
+% sustituye a amssymb; todos los símbolos proceden de la fuente
+% matemática que se fija aquí.
+\usepackage{unicode-math}
+\setmathfont{Fira Math}
 
 %"listings" package settings
 \lstset{
@@ -427,6 +438,22 @@
 \Crefname{enumiv}{Ítem}{Ítems}
 % FIN========== Configuración "cleveref" ==========
 
+% ========== Entradas robustas de ficheros ==========
+% La plantilla busca cada fichero primero en su carpeta (front_matter/ o
+% main_matter/) y, si no está ahí (por ejemplo, si subiste los ficheros
+% sueltos a la raíz del proyecto de Overleaf), lo busca directamente en
+% la raíz: funciona con ambas disposiciones.
+\makeatletter
+\newcommand{\apuntes@input@dos}[2]{%
+  % #1 = carpeta con barra final (p. ej. «front_matter/»), #2 = nombre
+  % sin extensión. Si existe <carpeta><nombre>.tex, se incluye desde ahí;
+  % si no, se incluye desde la raíz como <nombre>.tex.
+  \InputIfFileExists{#1#2.tex}{}{\input{#2}}}
+\newcommand{\inputportada}[1]{\apuntes@input@dos{front_matter/}{#1}}
+\newcommand{\inputtema}[1]{\apuntes@input@dos{main_matter/}{#1}}
+\makeatother
+% FIN ========== Entradas robustas de ficheros ==========
+
 
 \begin{document}
 
@@ -434,19 +461,20 @@
 \pagenumbering{roman}
 \setcounter{page}{0}
 
-\input{front_matter/title_page}
+\inputportada{title_page}
 
 \tableofcontents
 
 % Main matter: cada sección (\section) es un tema de la asignatura.
-% Añade aquí un \input por cada fichero de tema nuevo.
+% Añade aquí un \inputtema por cada fichero de tema nuevo (basta con
+% \inputtema{tema_3}, \inputtema{tema_4}, etc.).
 \clearpage
 \pagenumbering{arabic}
 \setcounter{page}{1}
 
-\input{main_matter/tema_1}
+\inputtema{tema_1}
 
 \clearpage
-\input{main_matter/tema_2}
+\inputtema{tema_2}
 
 \end{document}
