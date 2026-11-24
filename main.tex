@@ -1,14 +1,452 @@
-\documentclass{article}
-\usepackage{graphicx} % Required for inserting images
+\documentclass[12pt, a4paper]{article}
 
-\title{Plantilla_apuntes}
+% ============================================================
+% PLANTILLA DE APUNTES (basada en la plantilla de documento corto)
+% Compilar con XeLaTeX. Cada asignatura es un proyecto aparte:
+% cada \section es un tema de la asignatura.
+% ============================================================
+
+\usepackage{fontspec} %Required to change the font.
+\usepackage[spanish, es-tabla]{babel}
+
+\usepackage{graphicx} %Required to insert images.
+\usepackage{listings} %Required to insert code.
+\usepackage[table]{xcolor} %Required to have coloured cells on a table.
+\usepackage{amssymb} %Para más símbolos de matemáticas.
+\usepackage{amsmath} %Para más símbolos de matemáticas.
+\usepackage{amsthm} %Para entornos de teoremas, demostraciones y demás.
+\usepackage{tikz} %Para grafos y figuras.
+
+% ========== Secciones como temas ==========
+% El prefijo «Tema» se antepone solo al número de sección, de modo que
+% la numeración de los entornos (Teorema 1.1, Definición 1.1, etc.) no
+% cambia respecto a la plantilla de documento corto.
+\makeatletter
+\renewcommand{\@seccntformat}[1]{%
+  \expandafter\ifx\csname the#1\endcsname\thesection
+    Tema\space
+  \fi
+  \csname the#1\endcsname\quad}
+\makeatother
+% FIN ========== Secciones como temas ==========
+
+% ========== Sangría francesa de los entornos ==========
+% Cantidad de sangría (sangría francesa: primera línea al margen, las
+% siguientes, sangradas) que reciben todos los entornos de contenido.
+% Configurable en un único punto.
+\newlength{\sangriaentorno}
+\setlength{\sangriaentorno}{1.5em}
+% FIN ========== Sangría francesa de los entornos ==========
+
+% ========== Estilo de todos los entornos (sangría francesa) ==========
+% Mismo aspecto que en la plantilla de documento corto (cabecera en
+% negrita, cuerpo en cursiva, numeración por sección idéntica), pero
+% con sangría francesa: la cabecera abre la primera línea al margen y
+% las líneas siguientes quedan sangradas.
+\newtheoremstyle{apuntes}
+  {}% espacio vertical por encima (por defecto, como en documento corto)
+  {}% espacio vertical por debajo (por defecto, como en documento corto)
+  {\itshape}% cuerpo en cursiva
+  {}% sin sangría extra de la cabecera: la cabecera va al margen
+  {\bfseries}% cabecera en negrita
+  {.}% puntuación tras la cabecera
+  {5pt plus 1pt minus 1pt}% espacio tras la puntuación de la cabecera
+  {}% cabecera por defecto: nombre + número + (nota)
+
+% Estilo de las demostraciones: cabecera en cursiva y cuerpo en
+% redonda, igual que \begin{proof} de amsthm, pero con la palabra
+% «Demostración» metida en la sangría francesa del párrafo (no como
+% etiqueta aparte), de modo que abre la primera línea al margen y las
+% líneas siguientes quedan sangradas.
+\newtheoremstyle{demostracion}
+  {}
+  {}
+  {\normalfont}% cuerpo en redonda
+  {}
+  {\itshape}% cabecera en cursiva
+  {.}% puntuación tras la cabecera
+  {\labelsep}% espacio tras la puntuación, como el proof original
+  {\thmnote{#3}}% la cabecera ES la nota: reproduce que un nombre opcional sustituya a «Demostración»
+
+% Parche de amsthm: aplica la sangría francesa a todos los párrafos
+% del entorno (no solo al primero). El mecanismo interno de amsthm
+% inserta la cabecera al principio del primer párrafo; los párrafos
+% siguientes reactivan la sangría rearmándose.
+\makeatletter
+% \dth@everypar es un registro toks de amsthm: guardamos su contenido
+% original y reescribimos el registro (no se puede \def sobre él).
+\newtoks\apuntes@dth@everypar
+\apuntes@dth@everypar=\dth@everypar
+\dth@everypar{%
+  \hangindent\sangriaentorno\hangafter\@ne
+  \the\apuntes@dth@everypar
+  \everypar\expandafter{\the\dth@everypar}% rearma la sangría para los párrafos siguientes
+}
+% Fin del parche de la sangría
+
+% Demostración como entorno sin número con símbolo de QED. El nombre
+% («Demostración» por defecto) va metido en la sangría francesa: abre
+% la primera línea del párrafo y el cuerpo prosigue en ella.
+\theoremstyle{demostracion}
+\newtheorem*{demostracion@apl}{}
+
+\renewenvironment{proof}[1][\proofname]{%
+  \par
+  \pushQED{\qed}%
+  \def\@demostracion@nota{#1}%
+  \expandafter\demostracion@apl\expandafter[\@demostracion@nota]%
+}{%
+  \popQED
+  \enddemostracion@apl
+}
+
+% Alias en castellano: \begin{demostracion} y \begin{demostracion}[Nombre]
+% son equivalentes a \begin{proof} y \begin{proof}[Nombre]; en los
+% apuntes usaremos siempre la forma castellana.
+\newenvironment{demostracion}[1][\proofname]{\proof[#1]}{\endproof}
+
+% Las demostraciones van siempre inmediatamente después de su
+% resultado: se prohíbe el salto de página justo después de un
+% entorno (la demostración correspondiente siempre queda pegada). El
+% penalty se inserta dentro de \endtrivlist, antes del glue que este
+% emite, porque un penalty posterior no bloquearía el salto en ese
+% glue; la redefinición de \@endparenv queda local al entorno.
+\let\apuntes@endparenv\@endparenv
+\def\@endtheorem{%
+  \def\@endparenv{\penalty\@M\apuntes@endparenv}%
+  \endtrivlist
+  \@endpefalse}
+\makeatother
+% FIN ========== Estilo de todos los entornos (sangría francesa) ==========
+
+% ========== Configuración entornos de teoremas y demás ==========
+% Misma numeración que la plantilla de documento corto: teorema es el
+% contador padre de lema, proposición, corolario, propiedad, axioma y
+% criterio; definicion, ejemplo, observacion, nota, conjetura,
+% problema y notacion tienen contador propio. Todos numeran por
+% sección (es decir, por tema).
+\theoremstyle{apuntes}
+\newtheorem{teorema}{Teorema}[section]
+\newtheorem{lema}[teorema]{Lema}
+\newtheorem{proposicion}[teorema]{Proposición}
+\newtheorem{corolario}[teorema]{Corolario}
+
+\newtheorem{propiedad}[teorema]{Propiedad}
+\newtheorem{axioma}[teorema]{Axioma}
+\newtheorem{criterio}[teorema]{Criterio}
+
+\newtheorem{definicion}{Definición}[section]
+
+\newtheorem{ejemplo}{Ejemplo}[section]
+\newtheorem{observacion}{Observación}[section]
+\newtheorem{nota}{Nota}[section]
+\newtheorem{conjetura}{Conjetura}[section]
+\newtheorem{problema}{Problema}[section]
+
+\newtheorem{notacion}{Notación}[section]
+
+% amsthm enlaza \end<entorno> con \@endtheorem en el momento de
+% \newtheorem, así que hay que volver a enlazarlos todos después del
+% parche de arriba para que este surta efecto.
+\makeatletter
+\newcommand{\apuntes@ligarend}[1]{%
+  \expandafter\let\csname end#1\endcsname\@endtheorem}
+\apuntes@ligarend{teorema}
+\apuntes@ligarend{lema}
+\apuntes@ligarend{proposicion}
+\apuntes@ligarend{corolario}
+\apuntes@ligarend{propiedad}
+\apuntes@ligarend{axioma}
+\apuntes@ligarend{criterio}
+\apuntes@ligarend{definicion}
+\apuntes@ligarend{ejemplo}
+\apuntes@ligarend{observacion}
+\apuntes@ligarend{nota}
+\apuntes@ligarend{conjetura}
+\apuntes@ligarend{problema}
+\apuntes@ligarend{notacion}
+\apuntes@ligarend{demostracion@apl}
+
+% Complemento para que las demostraciones queden pegadas: si un
+% entorno empieza justo al final de una página sin sitio para él y
+% su demostración, se salta de página antes en vez de desbordar. El
+% margen reservado es configurable en \reservaminima.
+\usepackage{needspace}
+\usepackage{etoolbox}
+\newcommand{\reservaminima}{5\baselineskip}
+\AtBeginEnvironment{teorema}{\needspace{\reservaminima}}
+\AtBeginEnvironment{lema}{\needspace{\reservaminima}}
+\AtBeginEnvironment{proposicion}{\needspace{\reservaminima}}
+\AtBeginEnvironment{corolario}{\needspace{\reservaminima}}
+\AtBeginEnvironment{propiedad}{\needspace{\reservaminima}}
+\AtBeginEnvironment{axioma}{\needspace{\reservaminima}}
+\AtBeginEnvironment{criterio}{\needspace{\reservaminima}}
+\AtBeginEnvironment{definicion}{\needspace{\reservaminima}}
+\AtBeginEnvironment{ejemplo}{\needspace{\reservaminima}}
+\AtBeginEnvironment{observacion}{\needspace{\reservaminima}}
+\AtBeginEnvironment{nota}{\needspace{\reservaminima}}
+\AtBeginEnvironment{conjetura}{\needspace{\reservaminima}}
+\AtBeginEnvironment{problema}{\needspace{\reservaminima}}
+\AtBeginEnvironment{notacion}{\needspace{\reservaminima}}
+\makeatother
+% FIN ========== Configuración entornos de teoremas y demás ==========
+
+% ========== Entornos para algoritmos en pseudocódigo ==========
+\usepackage{algorithm} % Para el entorno "algorithm"
+\usepackage{algpseudocode} % Para la sintaxis del pseudocódigo
+
+% Personalización para castellano
+\floatname{algorithm}{Algoritmo} % Cambia "Algorithm" por "Algoritmo"
+\renewcommand{\algorithmicrequire}{\textbf{Requerir:}}
+\renewcommand{\algorithmicensure}{\textbf{Asegurar:}}
+\renewcommand{\algorithmicwhile}{\textbf{mientras}}
+\renewcommand{\algorithmicif}{\textbf{si}}
+\renewcommand{\algorithmicthen}{\textbf{entonces}}
+\renewcommand{\algorithmicelse}{\textbf{si no}}
+\renewcommand{\algorithmicfor}{\textbf{para}}
+\renewcommand{\algorithmicdo}{\textbf{hacer}}
+\renewcommand{\algorithmicend}{\textbf{fin}}
+\renewcommand{\algorithmicreturn}{\textbf{devolver}}
+% FIN========== Entornos para algoritmos en pseudocódigo ==========
+
+\usepackage{geometry} %Para ajustar márgenes
+\usepackage{csquotes} %Para citas en español
+
+% ========== Líderes de puntos en el índice ==========
+\usepackage{tocloft}
+
+% Los números de sección se muestran como «Tema 1», «Tema 2», etc.
+\renewcommand{\cftsecpresnum}{Tema~}
+% Anchura suficiente para el número más largo («Tema 10»), más margen.
+\setlength{\cftsecnumwidth}{4.5em}
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\cftsubsecleader}{\cftdotfill{\cftdotsep}}
+% FIN ========== Líderes de puntos en el índice ==========
+
+% ========== Notas al margen ==========
+% Notas al margen al estilo de los libros de Diestel: tipografía
+% pequeña y en cursiva, alineadas a la izquierda, para mini-índices de
+% términos (con flecha) y referencias cruzadas junto a las
+% demostraciones.
+\usepackage{marginnote}
+\newcommand{\notamargen}[1]{\marginnote{\footnotesize\itshape\raggedright #1}}
+% FIN ========== Notas al margen ==========
+
+\usepackage{anyfontsize} %Para tamaño de fuente personalizado
+
+% Configuración de márgenes
+\geometry{
+    left=2.5cm,
+    right=2.5cm,
+    top=2.5cm,
+    bottom=2.5cm,
+    marginparwidth=2cm, % margen reservado para las notas al margen
+    marginparsep=7.5pt
+}
+
+%"fontspec" package settings
+\setmainfont{Latin Modern Roman}
+\setmonofont{Fira Mono}
+
+%"listings" package settings
+\lstset{
+  language=Swift,
+  breaklines=true,
+  breakatwhitespace=true,
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+  numbers=left,
+  numberstyle=\tiny\ttfamily,
+  stepnumber=1,
+  numbersep=8pt,
+  frame=single,
+  lineskip=2pt,
+  showstringspaces=false,
+  basicstyle=\footnotesize\ttfamily,
+  keywordstyle=\color{violet}\bfseries,
+  keywordstyle=[2]\color{violet}\bfseries,
+  keywordstyle=[3]\color{violet}\bfseries,
+  commentstyle=\scriptsize\color{gray}\itshape,
+  stringstyle=\color{red},
+  identifierstyle=\color{teal},
+  directivestyle=\color{green},
+  backgroundcolor=\color{gray!5},
+  rulecolor=\color{black},
+  tabsize=4,
+}
+\lstdefinestyle{python}{
+  language=Python,
+  breaklines=true,
+  breakatwhitespace=true,
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+  numbers=left,
+  numberstyle=\tiny\ttfamily,
+  stepnumber=1,
+  numbersep=8pt,
+  frame=single,
+  lineskip=2pt,
+  showstringspaces=false,
+  basicstyle=\footnotesize\ttfamily,
+  keywordstyle=\color{violet}\bfseries,
+  keywordstyle=[2]\color{violet}\bfseries,
+  keywordstyle=[3]\color{violet}\bfseries,
+  commentstyle=\scriptsize\color{gray}\itshape,
+  stringstyle=\color{red},
+  identifierstyle=\color{teal},
+  directivestyle=\color{green},
+  backgroundcolor=\color{gray!5},
+  rulecolor=\color{black},
+  tabsize=4,
+}
+\renewcommand{\lstlistingname}{Fragmento de código}
+
+% ========== Variables globales ==========
+% Cada asignatura es un proyecto aparte: cambia aquí el título, la
+% asignatura y el profesor, y el resto de la plantilla se adapta solo.
+\title{Apuntes de Asignatura}
 \author{Alfonso Francisco Gil González}
-\date{November 2026}
+\newcommand{\universidad}{Universidad de Cádiz}
+\newcommand{\centro}{Facultad de Ciencias - Escuela Superior de Ingeniería}
+
+\makeatletter
+\newcommand{\titulo}{\@title}
+\newcommand{\autor}{\@author}
+\makeatother
+
+\newcommand{\subtitulo}{Apuntes de clase}
+\newcommand{\tipodoc}{Apuntes de clase}
+\newcommand{\asignatura}{Asignatura}
+\newcommand{\tutora}{Profesor: Nombre Apellido}
+\newcommand{\lugar}{Puerto Real}
+\newcommand{\fecha}{Curso 2026-2027}
+\date{Curso 2026-2027}
+% FIN ========== Variables globales ==========
+
+% ========== Redefinir los tamaños de fuente estándar ==========
+% El interlineado es configurable en un único punto: \interlineado.
+% Su valor por defecto es 1,2 (el de la plantilla de documento corto);
+% cada tamaño de fuente se multiplica por él para obtener el
+% interlineado correspondiente. Los tamaños de letra son los mismos
+% que en la plantilla de documento corto.
+\newcommand{\interlineado}{1.2}
+
+\renewcommand{\tiny}{\fontsize{8pt}{\fpeval{8*\interlineado}pt}\selectfont}
+\renewcommand{\scriptsize}{\fontsize{12pt}{\fpeval{12*\interlineado}pt}\selectfont}
+\renewcommand{\footnotesize}{\fontsize{10pt}{\fpeval{10*\interlineado}pt}\selectfont}
+\renewcommand{\small}{\fontsize{10pt}{\fpeval{10*\interlineado}pt}\selectfont}
+\renewcommand{\normalsize}{\fontsize{12pt}{\fpeval{12*\interlineado}pt}\selectfont}
+\renewcommand{\large}{\fontsize{14pt}{\fpeval{14*\interlineado}pt}\selectfont}
+\renewcommand{\Large}{\fontsize{16pt}{\fpeval{16*\interlineado}pt}\selectfont}
+\renewcommand{\LARGE}{\fontsize{20pt}{\fpeval{20*\interlineado}pt}\selectfont}
+\renewcommand{\huge}{\fontsize{22pt}{\fpeval{22*\interlineado}pt}\selectfont}
+\renewcommand{\Huge}{\fontsize{24pt}{\fpeval{24*\interlineado}pt}\selectfont}
+% FIN ========== Redefinir los tamaños de fuente estándar ==========
+
+% ========== Encabezados y pies de páginas ==========
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+% Limpia los estilos por defecto
+\fancyhf{}
+
+% Configura el encabezado
+\fancyhead[L]{\small \autor}
+\fancyhead[R]{\small \titulo}
+
+% Configura el pie de página
+\fancyfoot[C]{\small \thepage}
+
+\renewcommand{\headrulewidth}{0pt} % Elimina la línea del encabezado
+
+% Pies de página del page style plain, usado al iniciar un capítulo
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyfoot[C]{\small \thepage}
+}
+% FIN ========== Encabezados y pies de páginas ==========
+
+\usepackage[hidelinks]{hyperref} %Required to make "Contents" clickable.
+\usepackage{bookmark} %Improves "hyperref" package.
+\usepackage{cleveref}
+
+% ========== Configuración "cleveref" ==========
+% Nombres en castellano para \cref y \Cref de todos los entornos y
+% objetos referenciables: los entornos matemáticos, algoritmo,
+% fragmento de código, ecuación, figura, tabla, sección (que aquí son
+% temas), página, nota al pie e ítems de listas.
+\crefname{teorema}{teorema}{teoremas}
+\Crefname{teorema}{Teorema}{Teoremas}
+\crefname{lema}{lema}{lemas}
+\Crefname{lema}{Lema}{Lemas}
+\crefname{proposicion}{proposición}{proposiciones}
+\Crefname{proposicion}{Proposición}{Proposiciones}
+\crefname{corolario}{corolario}{corolarios}
+\Crefname{corolario}{Corolario}{Corolarios}
+\crefname{propiedad}{propiedad}{propiedades}
+\Crefname{propiedad}{Propiedad}{Propiedades}
+\crefname{axioma}{axioma}{axiomas}
+\Crefname{axioma}{Axioma}{Axiomas}
+\crefname{criterio}{criterio}{criterios}
+\Crefname{criterio}{Criterio}{Criterios}
+\crefname{definicion}{definición}{definiciones}
+\Crefname{definicion}{Definición}{Definiciones}
+\crefname{ejemplo}{ejemplo}{ejemplos}
+\Crefname{ejemplo}{Ejemplo}{Ejemplos}
+\crefname{observacion}{observación}{observaciones}
+\Crefname{observacion}{Observación}{Observaciones}
+\crefname{nota}{nota}{notas}
+\Crefname{nota}{Nota}{Notas}
+\crefname{conjetura}{conjetura}{conjeturas}
+\Crefname{conjetura}{Conjetura}{Conjeturas}
+\crefname{problema}{problema}{problemas}
+\Crefname{problema}{Problema}{Problemas}
+\crefname{notacion}{notación}{notaciones}
+\Crefname{notacion}{Notación}{Notaciones}
+\crefname{algorithm}{algoritmo}{algoritmos}
+\Crefname{algorithm}{Algoritmo}{Algoritmos}
+\crefname{listing}{fragmento de código}{fragmentos de código}
+\Crefname{listing}{Fragmento de código}{Fragmentos de código}
+\crefname{equation}{ecuación}{ecuaciones}
+\Crefname{equation}{Ecuación}{Ecuaciones}
+\crefname{figure}{figura}{figuras}
+\Crefname{figure}{Figura}{Figuras}
+\crefname{table}{tabla}{tablas}
+\Crefname{table}{Tabla}{Tablas}
+\crefname{section}{tema}{temas}
+\Crefname{section}{Tema}{Temas}
+\crefname{page}{página}{páginas}
+\Crefname{page}{Página}{Páginas}
+\crefname{footnote}{nota al pie}{notas al pie}
+\Crefname{footnote}{Nota al pie}{Notas al pie}
+\crefname{enumi}{ítem}{ítems}
+\Crefname{enumi}{Ítem}{Ítems}
+\crefname{enumii}{ítem}{ítems}
+\Crefname{enumii}{Ítem}{Ítems}
+\crefname{enumiii}{ítem}{ítems}
+\Crefname{enumiii}{Ítem}{Ítems}
+\crefname{enumiv}{ítem}{ítems}
+\Crefname{enumiv}{Ítem}{Ítems}
+% FIN========== Configuración "cleveref" ==========
+
 
 \begin{document}
 
-\maketitle
+% Front matter: solo portada e índice, con numeración romana
+\pagenumbering{roman}
+\setcounter{page}{0}
 
-\section{Introduction}
+\input{front_matter/title_page}
+
+\tableofcontents
+
+% Main matter: cada sección (\section) es un tema de la asignatura.
+% Añade aquí un \input por cada fichero de tema nuevo.
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\input{main_matter/tema_1}
+
+\clearpage
+\input{main_matter/tema_2}
 
 \end{document}

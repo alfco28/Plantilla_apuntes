@@ -1,0 +1,105 @@
+% Ejemplo de tema: cada fichero de tema empieza con su \section.
+% El número se muestra como «Tema 1» en el título y en el índice, y
+% los entornos numeran por tema (Teorema 1.1, Definición 1.1, ...).
+
+\section{Primer tema de la asignatura}\label{tema:uno}
+
+Párrafo de introducción del tema. Los términos clave se anotan al
+margen con \notamargen{término clave $\rightarrow$}, al estilo de los
+libros de Diestel, para construir un mini-índice del tema.
+
+\begin{definicion}[Objeto de estudio]\label{def:objeto}
+    Definición del objeto de estudio del tema, con un nombre entre
+    corchetes que aparece tras el número. Al estar el párrafo en
+    cursiva y ser largo, se aprecia la sangría francesa: la primera
+    línea queda al margen y las siguientes sangradas.
+\end{definicion}
+
+\begin{notacion}\label{not:basica}
+    Notación básica del tema. El entorno de notación numera de forma
+    independiente, igual que definiciones o ejemplos.
+\end{notacion}
+
+\begin{teorema}[Nombre del teorema]\label{thm:principal}
+    Enunciado del teorema principal del tema, con la etiqueta opcional
+    entre corchetes que aquí funciona de nombre propio y debajo, en
+    \cref{eq:principal}, la ecuación de la que depende.
+    \begin{equation}\label{eq:principal}
+        a^2 + b^2 = c^2
+    \end{equation}
+\end{teorema}
+\notamargen{dem. de \cref{thm:principal} usa \cref{def:objeto}}
+
+\begin{demostracion}
+    Demostración del teorema. La palabra «Demostración» está metida
+    en la sangría francesa: abre la primera línea al margen y las
+    líneas siguientes quedan sangradas; la demostración aparece
+    siempre pegada a su teorema, sin salto de página posible entre
+    ambos, y termina con el símbolo de QED.
+\end{demostracion}
+
+\begin{demostracion}[Prueba alternativa]
+    Comentario: con un argumento opcional, la palabra «Demostración»
+    se sustituye por el nombre que se indique, como aquí.
+\end{demostracion}
+
+\begin{lema}\label{lem:auxiliar}
+    Enunciado del lema auxiliar, que comparte numeración con los
+    teoremas y sus hermanos (proposiciones, corolarios, propiedades,
+    axiomas y criterios).
+\end{lema}
+
+\begin{demostracion}
+    Demostración del lema: por \cref{thm:principal} y la
+    \cref{def:objeto}, con una referencia a la página \cpageref{def:objeto}.
+\end{demostracion}
+
+\begin{corolario}
+    Enunciado del corolario del teorema principal.
+\end{corolario}
+
+\begin{proposicion}
+    Enunciado de la proposición.
+\end{proposicion}
+
+\begin{propiedad}
+    Enunciado de la propiedad.
+\end{propiedad}
+
+\begin{axioma}
+    Enunciado del axioma.
+\end{axioma}
+
+\begin{criterio}
+    Enunciado del criterio.
+\end{criterio}
+
+Un párrafo normal entre bloques, con una lista que también se
+referencia con \cref{item:uno} e \cref{item:dos} y una nota al pie
+referenciable\footnote{Contenido de la nota al pie, referenciable con
+\cref{fn:nota}. \label{fn:nota}}.
+
+\begin{enumerate}
+    \item\label{item:uno} Primer ítem de la lista, referenciable como ítem.
+    \item\label{item:dos} Segundo ítem, con \cref{item:uno} como ejemplo de referencia interna entre ítems.
+\end{enumerate}
+
+\begin{ejemplo}\label{ej:primero}
+    Enunciado del ejemplo, que muestra cómo usar \cref{lem:auxiliar}.
+\end{ejemplo}
+
+\begin{observacion}
+    Contenido de la observación.
+\end{observacion}
+
+\begin{nota}
+    Contenido de la nota.
+\end{nota}
+
+\begin{conjetura}
+    Enunciado de la conjetura que quedará por demostrar.
+\end{conjetura}
+
+\begin{problema}
+    Enunciado del problema propuesto.
+\end{problema}
