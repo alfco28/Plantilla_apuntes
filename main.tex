@@ -8,6 +8,8 @@
 
 \usepackage{fontspec} %Required to change the font.
 \usepackage[spanish, es-tabla]{babel}
+% «Dem.:» en lugar de «Demostración», como en los apuntes a mano.
+\addto\captionsspanish{\renewcommand{\proofname}{Dem.:}}
 
 \usepackage{graphicx} %Required to insert images.
 \usepackage{listings} %Required to insert code.
@@ -127,19 +129,23 @@
 % problema y notacion tienen contador propio. Todos numeran por
 % sección (es decir, por tema).
 \theoremstyle{apuntes}
+% Los nombres de los entornos siguen el mismo sistema de abreviaturas
+% de los apuntes a mano: Def.:, Ej.:, Obs.:, Prop.:, Dem.: abreviados;
+% Teorema, Lema, Nota, Notación, Criterio y Problema completos.
+% (Corolario, Propiedad, Axioma y Conjetura completos por ahora.)
 \newtheorem{teorema}{Teorema}[section]
 \newtheorem{lema}[teorema]{Lema}
-\newtheorem{proposicion}[teorema]{Proposición}
+\newtheorem{proposicion}[teorema]{Prop.:}
 \newtheorem{corolario}[teorema]{Corolario}
 
 \newtheorem{propiedad}[teorema]{Propiedad}
 \newtheorem{axioma}[teorema]{Axioma}
 \newtheorem{criterio}[teorema]{Criterio}
 
-\newtheorem{definicion}{Definición}[section]
+\newtheorem{definicion}{Def.:}[section]
 
-\newtheorem{ejemplo}{Ejemplo}[section]
-\newtheorem{observacion}{Observación}[section]
+\newtheorem{ejemplo}{Ej.:}[section]
+\newtheorem{observacion}{Obs.:}[section]
 \newtheorem{nota}{Nota}[section]
 \newtheorem{conjetura}{Conjetura}[section]
 \newtheorem{problema}{Problema}[section]
@@ -388,8 +394,8 @@
 \Crefname{teorema}{Teorema}{Teoremas}
 \crefname{lema}{lema}{lemas}
 \Crefname{lema}{Lema}{Lemas}
-\crefname{proposicion}{proposición}{proposiciones}
-\Crefname{proposicion}{Proposición}{Proposiciones}
+\crefname{proposicion}{prop.}{prop.s}
+\Crefname{proposicion}{Prop.}{Prop.s}
 \crefname{corolario}{corolario}{corolarios}
 \Crefname{corolario}{Corolario}{Corolarios}
 \crefname{propiedad}{propiedad}{propiedades}
@@ -398,12 +404,14 @@
 \Crefname{axioma}{Axioma}{Axiomas}
 \crefname{criterio}{criterio}{criterios}
 \Crefname{criterio}{Criterio}{Criterios}
-\crefname{definicion}{definición}{definiciones}
-\Crefname{definicion}{Definición}{Definiciones}
-\crefname{ejemplo}{ejemplo}{ejemplos}
-\Crefname{ejemplo}{Ejemplo}{Ejemplos}
-\crefname{observacion}{observación}{observaciones}
-\Crefname{observacion}{Observación}{Observaciones}
+% Los entornos abreviados usan el mismo sistema de abreviaturas de
+% los apuntes a mano, incluido el plural con «s» tras el punto.
+\crefname{definicion}{def.}{def.s}
+\Crefname{definicion}{Def.}{Def.s}
+\crefname{ejemplo}{ej.}{ej.s}
+\Crefname{ejemplo}{Ej.}{Ej.s}
+\crefname{observacion}{obs.}{obs.s}
+\Crefname{observacion}{Obs.}{Obs.s}
 \crefname{nota}{nota}{notas}
 \Crefname{nota}{Nota}{Notas}
 \crefname{conjetura}{conjetura}{conjeturas}
