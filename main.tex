@@ -67,8 +67,9 @@
   {\normalfont}% cuerpo en redonda
   {}
   {\itshape}% cabecera en cursiva
-  {.}% puntuación tras la cabecera
-  {\labelsep}% espacio tras la puntuación, como el proof original
+  {}% SIN puntuación tras la cabecera: el nombre («Dem.:») ya termina
+     % en su propia puntuación; dejar aquí un punto produciría «Dem.:.»
+  {\labelsep}% espacio tras la cabecera, como el proof original
   {\thmnote{#3}}% la cabecera ES la nota: reproduce que un nombre opcional sustituya a «Demostración»
 
 % Parche de amsthm: aplica la sangría francesa a todos los párrafos
@@ -142,7 +143,33 @@
 \newtheorem{axioma}[teorema]{Axioma}
 \newtheorem{criterio}[teorema]{Criterio}
 
-\newtheorem{definicion}{Def.:}[section]
+% La definición lleva el término definido en una nota al margen
+% IZQUIERDO (no entre paréntesis después de «Def.:»), con el mismo
+% aspecto que \notamargen (cursiva, pequeña), alineada hacia el
+% texto: \begin{definicion}[Hausdorff] escribe «Hausdorff» en el
+% margen izquierdo a la altura de la cabecera. El margen izquierdo
+% de la página (2,5 cm) ya reserva sitio para estas notas
+% (marginparsep + marginparwidth = 2 cm).
+\newtheorem{definicion@apl}{Def.:}[section]
+\makeatletter
+\newenvironment{definicion}[1][]{%
+  % #1 = término que se está definiendo; si se da, va al margen
+  % izquierdo. \leavevmode abre el párrafo (con su cabecera «Def.:
+  % n.m») para que la nota se ancle a esa misma línea. Para escribir
+  % en el margen izquierdo con marginnote hay que invertir el margen
+  % (\reversemarginpar) y darle el texto en el argumento OPCIONAL,
+  % dejando vacío el obligatorio (así funciona marginnote v1.5); el
+  % grupo limita la inversión a esta nota. marginnote ya alinea las
+  % notas del margen izquierdo hacia el texto (\raggedleft).
+  \definicion@apl
+  \if\relax\detokenize{#1}\relax\else
+    \leavevmode
+    {\reversemarginpar\marginnote[{\footnotesize\itshape #1}]{}}%
+  \fi
+}{%
+  \enddefinicion@apl
+}
+\makeatother
 
 \newtheorem{ejemplo}{Ej.:}[section]
 \newtheorem{observacion}{Obs.:}[section]
@@ -165,7 +192,10 @@
 \apuntes@ligarend{propiedad}
 \apuntes@ligarend{axioma}
 \apuntes@ligarend{criterio}
-\apuntes@ligarend{definicion}
+% La definición usa el entorno interno «definicion@apl», así que el
+% parche del final del entorno y los nombres de cleveref van con ese
+% nombre (el contador también se llama así).
+\apuntes@ligarend{definicion@apl}
 \apuntes@ligarend{ejemplo}
 \apuntes@ligarend{observacion}
 \apuntes@ligarend{nota}
@@ -197,6 +227,21 @@
 \AtBeginEnvironment{notacion}{\needspace{\reservaminima}}
 \makeatother
 % FIN ========== Configuración entornos de teoremas y demás ==========
+
+% ========== Contenido anidado dentro de otro entorno ==========
+% En mis apuntes a mano, lo que va «dentro» de otro entorno (p. ej.
+% un ejemplo que pertenece a una definición) no se escribe detrás
+% suelto, sino anidado en el anterior con una sangría extra
+% aplicada a TODO el bloque anidado (también a la cabecera del
+% entorno interior). Para reproducirlo, el entorno interior se
+% mete dentro de \begin{anidado} ... \end{anidado}.
+\newenvironment{anidado}{%
+  \par
+  \advance\leftskip\sangriaentorno% sangría extra a todo el bloque
+}{%
+  \par
+}
+% FIN ========== Contenido anidado dentro de otro entorno ==========
 
 % ========== Entornos para algoritmos en pseudocódigo ==========
 \usepackage{algorithm} % Para el entorno "algorithm"
@@ -405,9 +450,11 @@
 \crefname{criterio}{criterio}{criterios}
 \Crefname{criterio}{Criterio}{Criterios}
 % Los entornos abreviados usan el mismo sistema de abreviaturas de
-% los apuntes a mano, incluido el plural con «s» tras el punto.
-\crefname{definicion}{def.}{def.s}
-\Crefname{definicion}{Def.}{Def.s}
+% los apuntes a mano, incluido el plural con «s» tras el punto. El
+% «definicion» va con el nombre del contador interno, porque el
+% entorno visible es una envoltura suya (véase más arriba).
+\crefname{definicion@apl}{def.}{def.s}
+\Crefname{definicion@apl}{Def.}{Def.s}
 \crefname{ejemplo}{ej.}{ej.s}
 \Crefname{ejemplo}{Ej.}{Ej.s}
 \crefname{observacion}{obs.}{obs.s}

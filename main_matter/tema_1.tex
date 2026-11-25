@@ -9,15 +9,32 @@ margen con \notamargen{término clave $\rightarrow$}, al estilo de los
 libros de Diestel, para construir un mini-índice del tema.
 
 \begin{definicion}[Objeto de estudio]\label{def:objeto}
-    Definición del objeto de estudio del tema, con un nombre entre
-    corchetes que aparece tras el número. Al estar el párrafo en
-    cursiva y ser largo, se aprecia la sangría francesa: la primera
-    línea queda al margen y las siguientes sangradas.
+    Definición del objeto de estudio del tema: lo que se está
+    definiendo (aquí, «objeto de estudio») aparece en una nota al
+    margen izquierdo, con el mismo aspecto que \notamargen, y no entre
+    paréntesis tras el encabezado. Al estar el párrafo en cursiva y
+    ser largo, se aprecia la sangría francesa: la primera línea
+    queda al margen y las siguientes sangradas. Un ejemplo que
+    pertenece \emph{dentro} de esta definición no se escribe detrás
+    suelto, sino anidado con una sangría extra a todo el bloque:
+    \begin{anidado}
+        \begin{ejemplo}\label{ej:anidado}
+            Enunciado de un ejemplo anidado dentro de la definición:
+            la sangría extra alcanza a todo el bloque, incluida esta
+            cabecera, como en los apuntes a mano.
+        \end{ejemplo}
+    \end{anidado}
 \end{definicion}
 
 \begin{notacion}\label{not:basica}
-    Notación básica del tema. El entorno de notación numera de forma
-    independiente, igual que definiciones o ejemplos.
+    Notación básica del tema. Las comparaciones van con
+    $\leqslant$ y $\geqslant$ (nunca $\leq$ ni $\geq$); el conjunto
+    vacío, con $\varnothing$: $a\cdot b\leqslant c$,
+    $A\cap B=\varnothing$; los productos de «letras» llevan el punto
+    $\cdot$ entre ellas para no confundirlas con variables de varias
+    letras: $x\cdot y\cdot z$; y las conectivas lógicas se escriben
+    con palabras, «o» e «y», nunca con $\vee$ ni $\wedge$:
+    $A\subseteq B \,\text{y}\, B\subseteq C$.
 \end{notacion}
 
 \begin{teorema}[Nombre del teorema]\label{thm:principal}
