@@ -206,14 +206,19 @@ bien del todo, ¿por qué? Preguntar al prof.»).
   caracteres abreviados que babel `spanish` activa (`<`, `>`, `"`, `.`)
   dentro de TikZ; sin ella, cualquier `\draw[->]` revienta con un error
   que no apunta en absoluto al preámbulo (habla de `\pgfkeys@splitter`,
-  «nullfont», etc.).
+  «nullfont», etc.). Van también cargadas `arrows.meta` (flechas
+  modernas), `calc` (coordenadas por interpolación
+  `($(a)!0.5!(b)$`), `decorations.markings` (marcas sobre curvas) y
+  `patterns` (rellenos de gris), que cubren prácticamente cualquier
+  figura de apuntes.
 - **Matrices anchas**: se permiten hasta **20 columnas**; el preámbulo
   fija `\setcounter{MaxMatrixCols}{20}` (amsmath limita a 10 por
   defecto, y las matrices de incidencia en optimización combinatoria lo
   superan). El nombre del contador va CON MAYÚSCULAS: en minúsculas es
   un error duro de LaTeX. No cambies el valor a mano en el contenido:
   pide más columnas ampliándolo en `main.tex`.
-- **Símbolos que faltan en Fira Math**: `⋂ ⋃ ∖ △ ▷ ◁ ⋆` los aporta
+- **Símbolos que faltan en Fira Math**: `⋂ ⋃ ∖ △ ▷ ◁ ⋆` (y también
+  los puntos en diagonal de matrices, `\vdots` y `\ddots`) los aporta
   automáticamente Latin Modern Math, fijado en el preámbulo con un
   `range=` de `unicode-math` (Fira Math no los trae, y un glifo ausente
   sale EN BLANCO en el PDF, no sustituido). Si el log avisara «Missing
@@ -247,13 +252,28 @@ bien del todo, ¿por qué? Preguntar al prof.»).
 Al compilar aparecen avisos que NO son errores y no hay que perseguir:
 
 - `Invalid UTF-8 byte or sequence … replaced by U+FFFD` en
-  `algorithm.sty` o `anyfontsize.sty`: un comentario en Latin-1 dentro
-  de esos paquetes; benigno y no arreglable desde el proyecto.
+  `algorithm.sty`: un comentario en Latin-1 dentro de ese paquete;
+  benigno y no arreglable desde el proyecto. (El mismo aviso de
+  `anyfontsize.sty` desapareció al eliminar el paquete, que no hacía
+  nada útil bajo fontspec.)
+- `First Aid for cleveref.sty applied!`: rutina de auto-reparación de
+  hyperref/cleveref; funciona como debe.
 - `Package hyperref Info: bookmark level for unknown algorithm
   defaults to 0`: cosmético; hyperref no conoce el nivel de marcador
   del flotante `algorithm`.
 - Los `marginnote Info: xpos seems to be …`: trazas internas de
   marginnote.
+- `Package fontspec Info: Could not resolve font "Fira Math/B"`:
+  Fira Math no tiene negrita y unicode-math busca una por defecto;
+  recurre a la normal. Sin impacto.
+- `Font shape 'TU/FiraMath' will be scaled to size …`: escalado
+  normal de las fuentes matemáticas OpenType con rangos ópticos.
+- `Package hyperref Warning: Token not allowed in a PDF string
+  (removing math shift / superscript)`: los `$` y `^` de un título
+  con mates sin `\texorpdfstring`; hyperref los quita y el marcador
+  sale igual, pero la regla del `texorpdfstring` los evita del todo.
+- `LaTeX Encoding Info: Redeclaring text command \ij …` de babel:
+  rutina normal al cargar babel.
 - `babel … Making " an active character / Making . an active character`:
   comportamiento normal de babel spanish (y la razón por la que la
   plantilla carga la librería `babel` de TikZ).
@@ -267,31 +287,54 @@ Bloque para pegar en el prompt junto al material de la asignatura:
 
 1. Matemáticas siempre con comandos (`\bigcup`, `\setminus`,
    `\triangle`), nunca con caracteres Unicode matemáticos literales
-   (⋃, △, →). Nada de `$$`: usa `\[ \]`, `equation*` o `align*`.
-2. TikZ: la plantilla ya carga `\usetikzlibrary{babel}`; escribe `->`
-   con normalidad. Nada de `\shorthandoff` manual.
-3. Matrices de más de 10 columnas: permitidas (el preámbulo fija
+   (⋃, △, →), ni siquiera en notas al margen o `caption`: la fuente de
+   texto no los tiene y salen en blanco. Nada de `$$`: usa `\[ \]`,
+   `equation*` o `align*`.
+2. TikZ: la plantilla ya carga `\usetikzlibrary{babel}` (más
+   `arrows.meta`, `calc`, `decorations.markings` y `patterns`);
+   escribe `->` con normalidad. Nada de `\shorthandoff` manual.
+3. **Títulos con mates**: `\texorpdfstring{$\mathbb{R}P^2$}{RP2}`.
+   El preámbulo lleva una red de seguridad para los marcadores, pero
+   los `$` y `^` de un título sin `texorpdfstring` dejan avisos
+   («Token not allowed in a PDF string»).
+4. **Títulos que caben en una línea**: sin fórmulas largas ni más de
+   ~50 caracteres; el prefijo automático «Tema N.» ya resta espacio y
+   los saltos de línea en títulos quedan fuera de estilo.
+5. Matrices de más de 10 columnas: permitidas (el preámbulo fija
    `MaxMatrixCols` a 20). No toques el contador a mano.
-4. Comentarios en filas de `align`: cortos, dentro de `(\text{...})`;
+6. Comentarios en filas de `align`: cortos, dentro de `(\text{...})`;
    la explicación larga, en prosa después. Parte las funciones
    objetivo largas con `\\`.
-5. Enumeraciones y tuplas largas: como texto o en display, jamás dentro
-   de un único inline math.
-6. `\qedhere`: a lo sumo uno por demostración, al final de una display o
+7. Enumeraciones y tuplas largas: como texto o en display, jamás dentro
+   de un único inline math. Una fórmula inline de más de ~15 caracteres
+   no tiene puntos de ruptura: si no cabe, vete al display; y deja
+   texto suficiente alrededor de cada fórmula para que la línea tenga
+   dónde romper.
+8. **Figuras TikZ**: dibuja la geometría completa (una recta que debe
+   cortar un eje, se dibuja hasta el eje; las intersecciones se
+   calculan, que es geometría y no decoración); etiquetas con anclaje
+   explícito (`node[above left]`, `node[right]`,…) y separadas entre
+   sí: Fira Sans es más ancha que Computer Modern y lo que «parece
+   que cabe» se solapa en el papel; si una etiqueta conceptual queda
+   atravesada por un eje, muévela a zona despoblada y señala el punto
+   con una flecha fina gris. Tras compilar, MIRA el render de cada
+   figura: los solapes de etiquetas NO aparecen en el log.
+9. `\qedhere`: a lo sumo uno por demostración, al final de una display o
    de la última línea de texto; nunca `$\qedhere$`. Las resoluciones van
    en `resolucion` (sin QED), no en `demostracion`.
-7. Divisas con `\euro{}` (eurosym); marcas sí/no con `\ding{51}` y
+10. Divisas con `\euro{}` (eurosym); marcas sí/no con `\ding{51}` y
    `\ding{55}` (pifont).
-8. Referencias cruzadas: solo `\cref`/`\Cref`; etiquetas sin tildes ni
+11. Referencias cruzadas: solo `\cref`/`\Cref`; etiquetas sin tildes ni
    espacios (`prob:t4-01`, `fig:grafo-match`).
-9. Paquetes ya disponibles (no cargues otros): tikz (+librería babel),
-   amsmath, amsthm, unicode-math, geometry, csquotes, tocloft,
-   marginnote, needspace, etoolbox, algorithm/algpseudocode, listings,
-   xcolor, eurosym, pifont, anyfontsize, hyperref, bookmark, cleveref.
-10. Ignora en el log: el `U+FFFD` de algorithm.sty/anyfontsize.sty, el
-    `bookmark level for unknown algorithm` y las infos de marginnote. Un
-    overfull de más de 100 pt sí es un error que debes arreglar; de
-    menos de 10 pt es tolerable.
+12. Paquetes ya disponibles (no cargues otros): tikz (+librerías babel,
+   arrows.meta, calc, decorations.markings, patterns), amsmath,
+   amsthm, unicode-math, geometry, csquotes, tocloft, marginnote,
+   needspace, etoolbox, algorithm/algpseudocode, listings, xcolor,
+   eurosym, pifont, hyperref, bookmark, cleveref.
+13. Un overfull que sobreviva a `\emergencystretch` se arregla
+   reescribiendo la frase (más corta, con palabras de separación), no
+   tocando la plantilla. Como umbral: más de 100 pt es un error que
+   debes arreglar; menos de 10 pt es tolerable.
 
 ## Recomendaciones
 

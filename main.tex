@@ -34,7 +34,10 @@
 % cualquier \draw[->] rompe con «Argument of \language@active@arg>
 % has an extra }» y una cascada de errores que no apunta en absoluto
 % a la causa real (menciona \pgfkeys@splitter y «nullfont»).
-\usetikzlibrary{babel}% flechas y opciones seguras bajo babel spanish
+% Las demás cubren prácticamente cualquier figura de unos apuntes A4
+% en blanco y negro: flechas modernas, coordenadas por interpolación
+% ($(a)!0.5!(b)$), marcas sobre curvas y rellenos de gris.
+\usetikzlibrary{arrows.meta, calc, decorations.markings, patterns, babel}
 
 % ========== Secciones como temas ==========
 % El prefijo «Tema» se antepone solo al número de sección, de modo que
@@ -45,7 +48,10 @@
   \expandafter\ifx\csname the#1\endcsname\thesection
     Tema\space
   \fi
-  \csname the#1\endcsname\quad}
+  % Separación número-título con \enspace (0,5 em) y no \quad (1 em):
+  % el prefijo «Tema N» ya resta espacio y un título oficial largo
+  % desbordaba el margen derecho.
+  \csname the#1\endcsname\enspace}
 \makeatother
 % FIN ========== Secciones como temas ==========
 
@@ -320,7 +326,10 @@
 \newcommand{\notamargen}[1]{\marginnote{\footnotesize\itshape\raggedright #1}}
 % FIN ========== Notas al margen ==========
 
-\usepackage{anyfontsize} %Para tamaño de fuente personalizado
+% (Eliminado el paquete «anyfontsize»: es de 2007 y sus propios
+% bytes disparaban dos avisos «Invalid UTF-8» al cargarlo; era útil
+% para el repertorio clásico de NFSS, pero las fuentes fontspec/TU
+% admiten cualquier tamaño sin él, así que no hacía nada aquí.)
 
 % Configuración de márgenes
 \geometry{
@@ -353,19 +362,21 @@
 \setmathfont{Fira Math}
 % Fira Math no cubre todo el repertorio matemático: faltan, entre
 % otros, \bigcup, \bigcap, \setminus, \triangle, \triangleleft,
-% \triangleright (que \Comment de algpseudocode usa por defecto) y
-% \star. Los símbolos ausentes NO se sustituyen: salen en blanco en
-% el PDF (solo un aviso «Missing character» en el log). Se toman
-% pues de Latin Modern Math (de serie en TeX Live y Overleaf) solo
-% esos rangos, evitando huecos silenciosos con un cambio de estilo
-% inapreciable en glifos tan aislados. Nota: en el range= deben ir
-% los nombres primarios de unicode-math (\triangle es alias, su
-% nombre primario es \bigtriangleup); \smallsetminus no hace falta
-% (Fira Math sí tiene su glifo ⨸), y las variantes \subseteqq,
+% \triangleright (que \Comment de algpseudocode usa por defecto),
+% \star y también \vdots y \ddots (los puntos suspensivos en
+% diagonal de las matrices). Los símbolos ausentes NO se sustituyen:
+% salen en blanco en el PDF (solo un aviso «Missing character» en
+% el log). Se toman pues de Latin Modern Math (de serie en TeX Live
+% y Overleaf) solo esos rangos, evitando huecos silenciosos con un
+% cambio de estilo inapreciable en glifos tan aislados. Nota: en el
+% range= deben ir los nombres primarios de unicode-math (\triangle
+% es alias, su nombre primario es \bigtriangleup); \smallsetminus no
+% hace falta en el range: unicode-math lo construye por su cuenta
+% (rota otro glifo) y funciona siempre; y las variantes \subseteqq,
 % \supseteqq, \subsetneqq y \supsetneqq no están NI en Fira Math ni
 % en Latin Modern Math: usar \subseteq, \subsetneq, etc.
 \setmathfont[range={\bigcap,\bigcup,\setminus,\star,\bigtriangleup,
-  \triangleleft,\triangleright}]{Latin Modern Math}
+  \triangleleft,\triangleright,\vdots,\ddots}]{Latin Modern Math}
 
 %"listings" package settings
 \lstset{
@@ -549,6 +560,35 @@
 \crefname{enumiv}{ítem}{ítems}
 \Crefname{enumiv}{Ítem}{Ítems}
 % FIN========== Configuración "cleveref" ==========
+
+% ========== Red de seguridad para los marcadores PDF ==========
+% Al construir los marcadores (bookmarks) del PDF, hyperref convierte
+% los títulos de sección a «PDF strings», que no admiten mates ni
+% comandos de composición: cualquier título con mates inline
+% provocaba avisos «Token not allowed in a PDF string». La regla
+% correcta al redactar es \texorpdfstring en cada título con mates
+% (véase el README), que además fija la versión del marcador; esta
+% red elimina los avisos de los comandos marrones (\mathbb, \emph,
+% \textbf, …), mientras que los `$` y `^` que queden siguen dando
+% un aviso par de veces por título (inofensivo: hyperref los quita
+% y compone el resto). Si algo sobrevive, se omite en el marcador,
+% nunca en el título impreso.
+\makeatletter
+\pdfstringdefDisableCommands{%
+    \def\emph#1{#1}%
+    \def\textbf#1{#1}%
+    \def\textnormal#1{#1}%
+    \let\ensuremath\@firstofone
+    \let\mathbb\@firstofone
+    \let\mathbbm\@firstofone
+    \let\mathcal\@firstofone
+    \let\mathrm\@firstofone
+    \let\operatorname\@firstofone
+    \let\lVert\relax
+    \let\rVert\relax
+}
+\makeatother
+% FIN ========== Red de seguridad para los marcadores PDF ==========
 
 % ========== Entradas robustas de ficheros ==========
 % La plantilla busca cada fichero primero en su carpeta (front_matter/ o
