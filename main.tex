@@ -377,6 +377,11 @@
 % en Latin Modern Math: usar \subseteq, \subsetneq, etc.
 \setmathfont[range={\bigcap,\bigcup,\setminus,\star,\bigtriangleup,
   \triangleleft,\triangleright,\vdots,\ddots}]{Latin Modern Math}
+% Vectores subrayados: mi notación manuscrita para un vector es la
+% letra SUBRAYADA, no la letra con flecha. Redefiniendo \vec, un
+% vector tecleado de la forma estándar (\vec{x}) sale subrayado sin
+% que quien redacte tenga que recordar nada especial.
+\renewcommand{\vec}[1]{\underline{#1}}
 
 %"listings" package settings
 \lstset{
@@ -435,7 +440,7 @@
 \title{Apuntes de Asignatura}
 \author{Alfonso Francisco Gil González}
 \newcommand{\universidad}{Universidad de Cádiz}
-\newcommand{\centro}{Facultad de Ciencias - Escuela Superior de Ingeniería}
+\newcommand{\centro}{Facultad de Ciencias}
 
 \makeatletter
 \newcommand{\titulo}{\@title}
@@ -584,6 +589,8 @@
     \let\mathcal\@firstofone
     \let\mathrm\@firstofone
     \let\operatorname\@firstofone
+    \let\vec\@firstofone
+    \let\underline\@firstofone
     \let\lVert\relax
     \let\rVert\relax
 }
@@ -605,6 +612,21 @@
 \newcommand{\inputtema}[1]{\apuntes@input@dos{main_matter/}{#1}}
 \makeatother
 % FIN ========== Entradas robustas de ficheros ==========
+
+% ========== Cada tema empieza en página nueva ==========
+% Como un tema es una sección (\section), aquí se consigue que toda
+% sección empiece en página nueva, al estilo de los capítulos de un
+% libro. Se envuelve \section DESPUÉS de cargar hyperref y cleveref:
+% hyperref engancha sus anclajes y marcadores por dentro de \@sect,
+% así que el envoltorio se los conserva intactos. Los usos
+% estrellados (\section*, como el título del índice) también pasan
+% por el envoltorio; el \clearpage extra es inofensivo porque la
+% portada ya deja la página rota.
+\makeatletter
+\let\apuntes@section\section
+\renewcommand{\section}{\clearpage\apuntes@section}
+\makeatother
+% FIN ========== Cada tema empieza en página nueva ==========
 
 
 \begin{document}

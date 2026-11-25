@@ -37,6 +37,8 @@ ahí, los busca en la raíz, de modo que ambas disposiciones funcionan.
   archivo, la plantilla no impone nada). El título y el índice muestran
   «Tema 1», «Tema 2», … automáticamente a partir del número de sección; la
   numeración interna (Teorema 1.1, Definición 1.2, …) no cambia.
+- **Cada tema empieza en página nueva**: automático; toda sección abre
+  página, como los capítulos de un libro.
 - **Sin front/back matter**: solo portada e índice (numerados en romano);
   el resto, numeración arábiga desde 1.
 - **Portada**: edita las variables `\universidad`, `\title`, `\author`,
@@ -74,7 +76,10 @@ término que se está definiendo, y va como nota al **margen izquierdo**
 `\begin{definicion}[Hausdorff] … \end{definicion}` escribe «Hausdorff»
 en el margen izquierdo, a la altura de la cabecera, con el mismo estilo
 que `\notamargen`. Un entorno vacío `\begin{definicion}` funciona igual,
-sin nota.
+sin nota. Además, la primera mención del concepto DENTRO del cuerpo se
+escribe en cursiva con `\emph{…}` (como el cuerpo de las definiciones va
+en cursiva, `\emph` invierte y resalta el término en redonda, que es el
+contraste buscado).
 
 El entorno **`anidado`** sirve para meter un entorno dentro de otro
 (p. ej. un ejemplo que pertenece a una definición): añade una sangría
@@ -166,7 +171,9 @@ de otra forma. Nunca «siguiente»: **«que sigue»**. Nunca «distinto»:
 `\emptyset`); conectivas lógicas con las palabras **«o» e «y»**
 (nunca `\vee` ni `\wedge`); productos de «letras» con `\cdot` entre
 ellas (`$x\cdot y\cdot z$`) para no confundirlos con variables de
-varias letras; y definiciones por trozos con **coma entre cada valor
+varias letras; vectores **subrayados** (la plantilla redefine `\vec`
+para subrayar, así que `$\vec{x}$` sale con la letra subrayada, nunca
+con flecha); y definiciones por trozos con **coma entre cada valor
 y su condición**: `$x_j = \begin{cases} 1, & \text{si …} \\ 0, & c.c.\end{cases}$`.
 
 **Estructura de un tema.** Primero la intuición en palabras cortas entre
@@ -335,6 +342,13 @@ Bloque para pegar en el prompt junto al material de la asignatura:
    reescribiendo la frase (más corta, con palabras de separación), no
    tocando la plantilla. Como umbral: más de 100 pt es un error que
    debes arreglar; menos de 10 pt es tolerable.
+14. Definiciones: `\begin{definicion}[Término]` (término al margen
+   izquierdo) y la primera mención del concepto en el cuerpo con
+   `\emph{Término}`.
+15. Vectores: `\vec{x}`, `\vec{u}\cdot\vec{v}`… (la plantilla
+   redefine `\vec` a subrayado); nunca `\overrightarrow` ni negrita.
+16. Un tema = una `\section` (que abre página nueva automáticamente);
+   no metas `\clearpage` manuales entre temas.
 
 ## Recomendaciones
 
