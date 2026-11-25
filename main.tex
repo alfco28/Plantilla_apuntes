@@ -13,12 +13,28 @@
 
 \usepackage{graphicx} %Required to insert images.
 \usepackage{listings} %Required to insert code.
+\usepackage{eurosym} %Símbolo del euro (\euro) en problemas con costes.
+\usepackage{pifont} %\ding{51} y \ding{55}: marcas de sí/no en B/N para
+                   %comprobaciones de factibilidad, iteraciones, tablas…
 \usepackage[table]{xcolor} %Required to have coloured cells on a table.
 % Nota: amssymb NO se carga aquí: al usar unicode-math (más abajo) los
 % símbolos matemáticos los aporta la propia fuente matemática (Fira Math).
 \usepackage{amsmath} %Para más símbolos de matemáticas.
+% Matrices de más de 10 columnas: amsmath limita a 10 el número de
+% columnas de una matriz (p. ej., matrices de incidencia en
+% optimización combinatoria); aquí se sube a 20. OJO: el contador
+% se llama «MaxMatrixCols», CON MAYÚSCULAS; escribir
+% \setcounter{maxmatrixcols}{...} en minúsculas es un error duro de
+% LaTeX y el mensaje del error no dice cuál es el nombre correcto.
+\setcounter{MaxMatrixCols}{20}
 \usepackage{amsthm} %Para entornos de teoremas, demostraciones y demás.
 \usepackage{tikz} %Para grafos y figuras.
+% Imprescindible con babel «spanish»: neutraliza los caracteres
+% abreviados activos (<, >, ", .) DENTRO de TikZ. Sin esta librería,
+% cualquier \draw[->] rompe con «Argument of \language@active@arg>
+% has an extra }» y una cascada de errores que no apunta en absoluto
+% a la causa real (menciona \pgfkeys@splitter y «nullfont»).
+\usetikzlibrary{babel}% flechas y opciones seguras bajo babel spanish
 
 % ========== Secciones como temas ==========
 % El prefijo «Tema» se antepone solo al número de sección, de modo que
@@ -108,6 +124,24 @@
 % son equivalentes a \begin{proof} y \begin{proof}[Nombre]; en los
 % apuntes usaremos siempre la forma castellana.
 \newenvironment{demostracion}[1][\proofname]{\proof[#1]}{\endproof}
+
+% Resolución de problemas: mismo estilo que la demostración
+% (cabecera en cursiva que ES la nota opcional, cuerpo en redonda,
+% sangría francesa), pero SIN el cuadrado QED: conforme a mi estilo,
+% las resoluciones de problemas no cierran con el cuadrado (solo las
+% demostraciones). La cabecera por defecto es «Resolución».
+% NO se puede reutilizar demostracion directamente: heredaría el QED
+% de proof. Como a las demostraciones, se le pega al problema
+% (needspace + penalty de \endparenv, enganchado más abajo con
+% \apuntes@ligarend{resolucion@apl}).
+\theoremstyle{demostracion}
+\newtheorem*{resolucion@apl}{}
+\newenvironment{resolucion}[1][Resolución]{%
+  \par
+  \resolucion@apl[{#1}]%
+}{%
+  \endresolucion@apl
+}
 
 % Las demostraciones van siempre inmediatamente después de su
 % resultado: se prohíbe el salto de página justo después de un
@@ -203,6 +237,7 @@
 \apuntes@ligarend{problema}
 \apuntes@ligarend{notacion}
 \apuntes@ligarend{demostracion@apl}
+\apuntes@ligarend{resolucion@apl}
 
 % Complemento para que las demostraciones queden pegadas: si un
 % entorno empieza justo al final de una página sin sitio para él y
@@ -225,6 +260,7 @@
 \AtBeginEnvironment{conjetura}{\needspace{\reservaminima}}
 \AtBeginEnvironment{problema}{\needspace{\reservaminima}}
 \AtBeginEnvironment{notacion}{\needspace{\reservaminima}}
+\AtBeginEnvironment{resolucion}{\needspace{\reservaminima}}
 \makeatother
 % FIN ========== Configuración entornos de teoremas y demás ==========
 
@@ -296,6 +332,12 @@
     marginparsep=7.5pt
 }
 
+% El texto en Fira Sans es ancho y, con mates inline de Fira Math, a
+% veces una línea no encuentra ningún buen punto de corte y desborda
+% («Overfull \hbox»). \emergencystretch solo entra en juego en
+% peor ANTES que desbordar el margen.
+\setlength{\emergencystretch}{1em}
+
 %"fontspec" package settings
 % Texto sin serifa, a juego con la fuente del código (Fira Mono).
 \setmainfont{Fira Sans}
@@ -309,6 +351,21 @@
 % matemática que se fija aquí.
 \usepackage{unicode-math}
 \setmathfont{Fira Math}
+% Fira Math no cubre todo el repertorio matemático: faltan, entre
+% otros, \bigcup, \bigcap, \setminus, \triangle, \triangleleft,
+% \triangleright (que \Comment de algpseudocode usa por defecto) y
+% \star. Los símbolos ausentes NO se sustituyen: salen en blanco en
+% el PDF (solo un aviso «Missing character» en el log). Se toman
+% pues de Latin Modern Math (de serie en TeX Live y Overleaf) solo
+% esos rangos, evitando huecos silenciosos con un cambio de estilo
+% inapreciable en glifos tan aislados. Nota: en el range= deben ir
+% los nombres primarios de unicode-math (\triangle es alias, su
+% nombre primario es \bigtriangleup); \smallsetminus no hace falta
+% (Fira Math sí tiene su glifo ⨸), y las variantes \subseteqq,
+% \supseteqq, \subsetneqq y \supsetneqq no están NI en Fira Math ni
+% en Latin Modern Math: usar \subseteq, \subsetneq, etc.
+\setmathfont[range={\bigcap,\bigcup,\setminus,\star,\bigtriangleup,
+  \triangleleft,\triangleright}]{Latin Modern Math}
 
 %"listings" package settings
 \lstset{

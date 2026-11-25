@@ -10,7 +10,10 @@ independiente que usa esta plantilla como base.
 - **Compilar con XeLaTeX** (en Overleaf: *Menu → Compiler → XeLaTeX*).
 - Dos pasadas para que el índice y las referencias cruzadas se estabilicen.
 - Fuentes necesarias: *Fira Sans* (texto), *Fira Math* (fórmulas) y *Fira Mono*
-  (código), todas ellas sin serifa y a juego, disponibles en Overleaf de serie.
+  (código), todas ellas sin serifa y a juego, disponibles en Overleaf de serie;
+  más *Latin Modern Math*, también de serie, de la que la plantilla toma
+  solo algunos símbolos que faltan en Fira Math (véanse los
+  «Detalles técnicos»).
 
 ## Estructura
 
@@ -56,7 +59,8 @@ sección y se referencian con `\cref`:
 `teorema`, `lema`, `corolario`, `propiedad`, `axioma`,
 `criterio` (comparten el contador del teorema), `definicion`, `ejemplo`,
 `observacion`, `nota`, `conjetura`, `problema`, `notacion` (cada uno con
-su contador) y `demostracion` (sin numerar, con `\qed` automático).
+su contador), `demostracion` (sin numerar, con `\qed` automático) y
+`resolucion` (sin numerar, **sin** QED).
 
 Los **encabezados van abreviados como en mis apuntes a mano**: «Def.: 1.1»,
 «Ej.: 1.2», «Obs.: 1.3», «Prop.: 1.4» y «Dem.:» para las demostraciones;
@@ -98,6 +102,19 @@ alineado a la derecha**, automático; las resoluciones de problemas **no**
 llevan ese cuadrado (se redactan como texto normal o con otros entornos,
 sin `\qed`).
 
+Las **resoluciones de problemas** se escriben con
+`\begin{resolucion} … \end{resolucion}` (o `\begin{resolucion}[Cabecera]`,
+que por defecto es «Resolución»): mismo estilo que las demostraciones,
+pero **sin el cuadrado QED**, conforme a mi estilo. Quedan pegadas a su
+problema, como las demostraciones a su resultado. (No vale escribir una
+resolución como `demostracion`: heredaría el cuadrado.)
+
+Sobre **`\qedhere`** (el comando de amsthm para alinear el cuadrado con
+la última fórmula): solo al final de una demostración, uno como máximo,
+y colócalo dentro de una `equation`/`align` o al final de la última
+línea de texto; nunca como fórmula suelta `$\qedhere$` (dispara un
+aviso de amsthm y puede descentrar el cuadrado).
+
 ## Cómo redactar los apuntes (mi estilo a mano)
 
 Los apuntes se redactan **en mi estilo manuscrito**: telegráfico y compacto,
@@ -135,7 +152,7 @@ Los adverbios acabados en «-mente» se abrevian con el **adjetivo + `x`**:
 pasos», «# finito de elementos»; «para todo» y «existe» van con sus
 símbolos, `\forall` y `\exists`. Las siglas se definen entre paréntesis
 en su primer uso (`OC`, `e.t.`, …) y el término inglés se anota también
-entre paréntesis: «(TSP) Travel Salesman Problem».
+entre paréntesis: «(TSP) Travelling Salesman Problem».
 
 **Redacción.** Siempre que se pueda, en **impersonal**
 («considérese», «se tiene que»); si no, con **gerundio**
@@ -182,6 +199,100 @@ estereográfica desde el polo norte»), avisos («No confundir con…»),
 vértices «Sí/No actualizamos», y las preguntas pendientes («Esto no está
 bien del todo, ¿por qué? Preguntar al prof.»).
 
+## Detalles técnicos (para escribir sin sobresaltos)
+
+- **TikZ con flechas**: escribe `->`, `<->`, `>=` etc. con total
+  normalidad. La plantilla carga `tikzlibrary babel`, que neutraliza los
+  caracteres abreviados que babel `spanish` activa (`<`, `>`, `"`, `.`)
+  dentro de TikZ; sin ella, cualquier `\draw[->]` revienta con un error
+  que no apunta en absoluto al preámbulo (habla de `\pgfkeys@splitter`,
+  «nullfont», etc.).
+- **Matrices anchas**: se permiten hasta **20 columnas**; el preámbulo
+  fija `\setcounter{MaxMatrixCols}{20}` (amsmath limita a 10 por
+  defecto, y las matrices de incidencia en optimización combinatoria lo
+  superan). El nombre del contador va CON MAYÚSCULAS: en minúsculas es
+  un error duro de LaTeX. No cambies el valor a mano en el contenido:
+  pide más columnas ampliándolo en `main.tex`.
+- **Símbolos que faltan en Fira Math**: `⋂ ⋃ ∖ △ ▷ ◁ ⋆` los aporta
+  automáticamente Latin Modern Math, fijado en el preámbulo con un
+  `range=` de `unicode-math` (Fira Math no los trae, y un glifo ausente
+  sale EN BLANCO en el PDF, no sustituido). Si el log avisara «Missing
+  character» de otro símbolo, añádelo a ese `range`, con su nombre
+  primario de unicode-math (`\triangle` es alias; el primario es
+  `\bigtriangleup`). Evita `\vartriangle`, `\subseteqq`, `\supseteqq`,
+  `\subsetneqq` y `\supsetneqq`: no están ni en Fira Math ni en Latin
+  Modern Math (usa `\triangle`, `\subseteq`, `\subsetneq`, que sí
+  están). Regla general: los símbolos matemáticos, como comandos
+  (`\bigcup`, `\setminus`), nunca como caracteres Unicode literales
+  (⋃, △): con `unicode-math` acaban en el mismo hueco de fuente y
+  fallan igual, pero los comandos son localizables con `grep` y quedan
+  cubiertos por el respaldo si este se amplía.
+- **Divisas y marcas**: `\euro{}` (eurosym) para euros, p. ej.
+  `27\,\euro{}` por tonelada; `\ding{51}` (sí) y `\ding{55}` (no)
+  (pifont), en blanco y negro, para comprobaciones de factibilidad,
+  iteraciones de algoritmos y tablas.
+- **Líneas que desbordan**: el preámbulo fija
+  `\emergencystretch` a `1em`, que solo entra en juego cuando una línea
+  no encuentra punto de corte y de otro modo desbordaría el margen
+  (Fira Sans es ancha). Aun así, evita los tres patrones que más overfull
+  provocan: listas de tuplas largas dentro de un único inline math
+  (mételas en display o como texto, que se parte solo), comentarios entre
+  paréntesis kilométricos en filas de `align` (comentario corto; la
+  explicación, en prosa) y funciones objetivo sin partir en trozos con
+  `\\`. Un overfull de más de 100 pt es un error que hay que arreglar;
+  de menos de 10 pt es cosmético.
+
+## Cómo leer el log (avisos benignos)
+
+Al compilar aparecen avisos que NO son errores y no hay que perseguir:
+
+- `Invalid UTF-8 byte or sequence … replaced by U+FFFD` en
+  `algorithm.sty` o `anyfontsize.sty`: un comentario en Latin-1 dentro
+  de esos paquetes; benigno y no arreglable desde el proyecto.
+- `Package hyperref Info: bookmark level for unknown algorithm
+  defaults to 0`: cosmético; hyperref no conoce el nivel de marcador
+  del flotante `algorithm`.
+- Los `marginnote Info: xpos seems to be …`: trazas internas de
+  marginnote.
+- `babel … Making " an active character / Making . an active character`:
+  comportamiento normal de babel spanish (y la razón por la que la
+  plantilla carga la librería `babel` de TikZ).
+
+En cambio, **«Missing character»** no es benigno: ese glifo está saliendo
+en blanco; véanse los símbolos con respaldo más arriba.
+
+## Reglas para generar contenido con un LLM
+
+Bloque para pegar en el prompt junto al material de la asignatura:
+
+1. Matemáticas siempre con comandos (`\bigcup`, `\setminus`,
+   `\triangle`), nunca con caracteres Unicode matemáticos literales
+   (⋃, △, →). Nada de `$$`: usa `\[ \]`, `equation*` o `align*`.
+2. TikZ: la plantilla ya carga `\usetikzlibrary{babel}`; escribe `->`
+   con normalidad. Nada de `\shorthandoff` manual.
+3. Matrices de más de 10 columnas: permitidas (el preámbulo fija
+   `MaxMatrixCols` a 20). No toques el contador a mano.
+4. Comentarios en filas de `align`: cortos, dentro de `(\text{...})`;
+   la explicación larga, en prosa después. Parte las funciones
+   objetivo largas con `\\`.
+5. Enumeraciones y tuplas largas: como texto o en display, jamás dentro
+   de un único inline math.
+6. `\qedhere`: a lo sumo uno por demostración, al final de una display o
+   de la última línea de texto; nunca `$\qedhere$`. Las resoluciones van
+   en `resolucion` (sin QED), no en `demostracion`.
+7. Divisas con `\euro{}` (eurosym); marcas sí/no con `\ding{51}` y
+   `\ding{55}` (pifont).
+8. Referencias cruzadas: solo `\cref`/`\Cref`; etiquetas sin tildes ni
+   espacios (`prob:t4-01`, `fig:grafo-match`).
+9. Paquetes ya disponibles (no cargues otros): tikz (+librería babel),
+   amsmath, amsthm, unicode-math, geometry, csquotes, tocloft,
+   marginnote, needspace, etoolbox, algorithm/algpseudocode, listings,
+   xcolor, eurosym, pifont, anyfontsize, hyperref, bookmark, cleveref.
+10. Ignora en el log: el `U+FFFD` de algorithm.sty/anyfontsize.sty, el
+    `bookmark level for unknown algorithm` y las infos de marginnote. Un
+    overfull de más de 100 pt sí es un error que debes arreglar; de
+    menos de 10 pt es tolerable.
+
 ## Recomendaciones
 
 - Usa `\cref` / `\Cref` (cleveref) para todas las referencias cruzadas:
@@ -190,6 +301,8 @@ bien del todo, ¿por qué? Preguntar al prof.»).
   mini-índices de términos y referencias cruzadas, como en el Diestel.
 - Los símbolos matemáticos los aporta *Fira Math* a través de
   `unicode-math` (por eso la plantilla no carga `amssymb`); `\mathbb`,
-  `\mathcal`, etc. funcionan igual.
+  `\mathcal`, etc. funcionan igual. Los pocos que faltan en Fira Math
+  (`\bigcup`, `\triangle`, `\setminus`,…) vienen de Latin Modern Math
+  (véanse los «Detalles técnicos»).
 - Pensada para imprimirse en A4 y en blanco y negro: evita colores salvo
   que aporten algo pedagógico.

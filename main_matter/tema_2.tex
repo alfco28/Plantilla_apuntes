@@ -13,14 +13,22 @@ eiusmod tempor incididunt ut labore et dolore magna aliqua.
         \node (a) at (0,0) {$a$};
         \node (b) at (2,0) {$b$};
         \node (c) at (1,1.7) {$c$};
-        \draw (a) -- (b) -- (c) -- (a);
+        % Flechas seguras bajo babel «spanish»: la plantilla carga
+        % \usetikzlibrary{babel}, sin la cual \draw[->] rompería.
+        \draw[->] (a) -- (b);
+        \draw[->] (b) -- (c);
+        \draw[->] (c) -- (a);
     \end{tikzpicture}
-    \caption{Ejemplo de figura en blanco y negro con TikZ.}
+    \caption{Ejemplo de figura en blanco y negro con TikZ: un
+    digrafo con aristas dirigidas \texttt{->}.}
     \label{fig:grafo}
 \end{figure}
 
-La \cref{fig:grafo} muestra un grafo de ejemplo, referenciado con
-cleveref, que la llama «figura» por su \crefname en castellano.
+La \cref{fig:grafo} muestra un digrafo de ejemplo, referenciado con
+cleveref, que la llama «figura» por su \crefname en castellano; las
+aristas dirigidas se escriben \texttt{->} con total normalidad porque
+la plantilla neutraliza los caracteres abreviados de babel dentro de
+TikZ.
 
 \begin{definicion}
     Definición del segundo tema, con un párrafo algo más largo para
@@ -58,10 +66,13 @@ El \cref{lst:python} es un ejemplo de fragmento de código con su
 \begin{algorithm}[ht]
     \caption{Algoritmo de Euclides}\label{alg:euclides}
     \begin{algorithmic}[1]
-        \Require $a, b \in \mathbb{N}$ con $a \geq b$
+        \Require $a, b \in \mathbb{N}$ con $a \geqslant b$
         \Ensure $\mathrm{mcd}(a, b)$
         \While{$b \neq 0$}
             \State $(a, b) \gets (b, a \bmod b)$
+            % El \Comment usa ▷, que Fira Math no trae: lo aporta el
+            % respaldo de Latin Modern Math fijado en el preámbulo.
+            \Comment{resta con signo ignorado}
         \EndWhile
         \State \Return $a$
     \end{algorithmic}
@@ -84,3 +95,30 @@ El \cref{lst:python} es un ejemplo de fragmento de código con su
 En \cref{tab:ejemplo} hay una tabla de ejemplo, y con \cref{tema:dos}
 se referencia un tema completo; también se pueden cruzar referencias
 con \cref{tema:uno} del primer tema.
+
+\begin{problema}\label{prob:costes}
+    Un problema con costes: comprar toneladas de un producto en
+    varios proveedores, a $27\,\euro{}$ por tonelada en el mercado
+    spot, minimizando el gasto total. Las comprobaciones de
+    factibilidad de cada iteración se marcan con \ding{51} (sí)
+    y \ding{55} (no), en blanco y negro, sin colores.
+\end{problema}
+
+\begin{resolucion}
+    Resolución del problema de \cref{prob:costes}: fíjate en que la
+    cabecera es «Resolución» (el argumento opcional la cambia) y en
+    que, a diferencia de las demostraciones, NO termina con el
+    cuadrado de QED. La matriz de incidencia del problema, de 11
+    columnas, solo compila porque el preámbulo fija
+    \texttt{MaxMatrixCols} a 20 (el límite de amsmath es 10):
+    \[
+    M =
+    \begin{pmatrix}
+        1 & 0 & 1 & 0 & 0 & 1 & 0 & 1 & 0 & 0 & 1 \\
+        0 & 1 & 1 & 0 & 1 & 0 & 0 & 1 & 1 & 0 & 0 \\
+        1 & 1 & 0 & 1 & 0 & 0 & 1 & 0 & 0 & 1 & 1 \\
+    \end{pmatrix}
+    \]
+    La primera iteración es factible \ding{51} y la segunda no
+    \ding{55}.
+\end{resolucion}
