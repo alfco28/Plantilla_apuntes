@@ -96,6 +96,15 @@ En \cref{tab:ejemplo} hay una tabla de ejemplo, y con \cref{tema:dos}
 se referencia un tema completo; también se pueden cruzar referencias
 con \cref{tema:uno} del primer tema.
 
+Las listas con formato propio van con enumitem, por claves
+(\texttt{label=...}); el atajo del viejo paquete \emph{enumerate}
+(\texttt{[a)]}) no es válido, como se explica en el README:
+
+\begin{enumerate}[label=\alph*)]
+    \item Primer supuesto del modelo, etiquetado como «a)».
+    \item Segundo supuesto, etiquetado como «b)».
+\end{enumerate}
+
 \begin{problema}\label{prob:costes}
     Un problema con costes: comprar toneladas de un producto en
     varios proveedores, a $27\,\euro{}$ por tonelada en el mercado

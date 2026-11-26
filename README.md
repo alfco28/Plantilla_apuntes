@@ -9,6 +9,11 @@ independiente que usa esta plantilla como base.
 
 - **Compilar con XeLaTeX** (en Overleaf: *Menu → Compiler → XeLaTeX*).
 - Dos pasadas para que el índice y las referencias cruzadas se estabilicen.
+- **Requisitos** (Overleaf actual los cumple de sobra): TeX Live 2023 o
+  posterior (el respaldo de símbolos `range=` necesita unicode-math
+  v0.8r, del 13/08/2023) y kernel de LaTeX de 2021 o posterior (el
+  preámbulo usa `\fpeval`). El preámbulo AVISA (sin fallar) si detecta
+  un unicode-math más antiguo.
 - Fuentes necesarias: *Fira Sans* (texto), *Fira Math* (fórmulas) y *Fira Mono*
   (código), todas ellas sin serifa y a juego, disponibles en Overleaf de serie;
   más *Latin Modern Math*, también de serie, de la que la plantilla toma
@@ -224,6 +229,16 @@ bien del todo, ¿por qué? Preguntar al prof.»).
   superan). El nombre del contador va CON MAYÚSCULAS: en minúsculas es
   un error duro de LaTeX. No cambies el valor a mano en el contenido:
   pide más columnas ampliándolo en `main.tex`.
+- **Listas con formato propio**: la plantilla carga `enumitem`; los
+  formatos van POR CLAVES: `\begin{enumerate}[label=\alph*)]` (a, b,
+  c…), `[label=\arabic*)]` (1), 2), 3)…), `[label=\roman*)]`, etc.
+  OJO con el atajo `[a)]` del viejo paquete `enumerate`: NO es sintaxis
+  de enumitem (error «a) undefined»), y sin ningún paquete de listas el
+  fallo es doblemente traicionero: «Something's wrong--perhaps a
+  missing \item» que señala al `\item` y nunca al corchete, y dentro de
+  los entornos tipo teorema de esta plantilla ni siquiera da error:
+  compone «[a)]» como texto literal y numera los ítems 1., 2., 3. sin
+  avisar de nada.
 - **Símbolos que faltan en Fira Math**: `⋂ ⋃ ∖ △ ▷ ◁ ⋆` (y también
   los puntos en diagonal de matrices, `\vdots` y `\ddots`) los aporta
   automáticamente Latin Modern Math, fijado en el preámbulo con un
@@ -238,16 +253,40 @@ bien del todo, ¿por qué? Preguntar al prof.»).
   (`\bigcup`, `\setminus`), nunca como caracteres Unicode literales
   (⋃, △): con `unicode-math` acaban en el mismo hueco de fuente y
   fallan igual, pero los comandos son localizables con `grep` y quedan
-  cubiertos por el respaldo si este se amplía.
+  cubiertos por el respaldo si este se amplía. Curiosidad ya
+  verificada: `\leqslant` y `\geqslant` SÍ están en Fira Math (⩽, ⩾),
+  así que la regla de estilo de más abajo funciona sin respaldo.
+- **`\smallsetminus`**: funciona siempre SIN `range=` porque
+  unicode-math lo construye rotando un «menos» (no es un glifo de la
+  fuente), y por eso mismo NO puede ir NUNCA DENTRO de un `range=`:
+  no es un símbolo de la tabla de unicode-math sino un compuesto, y el
+  error es duro («bad-cs-in-range»).
+- **No edites el bloque `range=` por sistema**: cada entrada debe ser
+  un nombre PRIMARIO de `unicode-math-table.tex` (nunca un alias como
+  `\triangle` ni un compuesto como `\smallsetminus`), y los mapeos de
+  unicode-math han cambiado entre versiones: en v0.8r (2023)
+  `\setminus` pasó de U+29F5 (un slot que ni Fira Math ni Latin
+  Modern Math tienen) a U+2216, de modo que una distribución vieja da
+  diagnósticos falsos. Verifica cualquier cambio SOLO en la
+  distribución de destino (Overleaf).
+- **Receta ante un «Missing character»**: (1) anota el slot U+XXXX
+  del aviso; (2) si el símbolo lo trae Latin Modern Math, añade su
+  nombre primario de tabla al `range=` existente (verificando la
+  entrada en Overleaf); (3) si no lo trae ninguna de las dos, usa un
+  compuesto ya fabricado por unicode-math (`\smallsetminus`, en el
+  cuerpo del texto) o reescribe la expresión.
 - **Divisas y marcas**: `\euro{}` (eurosym) para euros, p. ej.
   `27\,\euro{}` por tonelada; `\ding{51}` (sí) y `\ding{55}` (no)
   (pifont), en blanco y negro, para comprobaciones de factibilidad,
   iteraciones de algoritmos y tablas.
 - **Líneas que desbordan**: el preámbulo fija
-  `\emergencystretch` a `1em`, que solo entra en juego cuando una línea
+  `\emergencystretch` a `3em`, que solo entra en juego cuando una línea
   no encuentra punto de corte y de otro modo desbordaría el margen
-  (Fira Sans es ancha). Aun así, evita los tres patrones que más overfull
-  provocan: listas de tuplas largas dentro de un único inline math
+  (Fira Sans es ancha); a cambio de un espaciado entre palabras algo
+  más holgado en esa línea, evita la mayoría de los overfull de texto
+  (los de displays no: una fila de `align` que no cabe hay que
+  partirla). Aun así, evita los tres patrones que más overfull provocan:
+  listas de tuplas largas dentro de un único inline math
   (mételas en display o como texto, que se parte solo), comentarios entre
   paréntesis kilométricos en filas de `align` (comentario corto; la
   explicación, en prosa) y funciones objetivo sin partir en trozos con
@@ -266,8 +305,13 @@ Al compilar aparecen avisos que NO son errores y no hay que perseguir:
 - `First Aid for cleveref.sty applied!`: rutina de auto-reparación de
   hyperref/cleveref; funciona como debe.
 - `Package hyperref Info: bookmark level for unknown algorithm
-  defaults to 0`: cosmético; hyperref no conoce el nivel de marcador
-  del flotante `algorithm`.
+  defaults to 0` y su gemelo `bookmark level for unknown lstlisting`:
+  DESAPARECIERON: el preámbulo fija ya `\toclevel@algorithm` y
+  `\toclevel@lstlisting`, con lo que los marcadores del algoritmo y
+  del fragmento de código quedan bien anidados en el índice del PDF.
+- `warning: Object @ALG@line.N already defined` (de xdvipdfmx): los
+  objetos por línea de algorithmicx colisionan entre algoritmos;
+  benigno.
 - Los `marginnote Info: xpos seems to be …`: trazas internas de
   marginnote.
 - `Package fontspec Info: Could not resolve font "Fira Math/B"`:
@@ -335,9 +379,9 @@ Bloque para pegar en el prompt junto al material de la asignatura:
    espacios (`prob:t4-01`, `fig:grafo-match`).
 12. Paquetes ya disponibles (no cargues otros): tikz (+librerías babel,
    arrows.meta, calc, decorations.markings, patterns), amsmath,
-   amsthm, unicode-math, geometry, csquotes, tocloft, marginnote,
-   needspace, etoolbox, algorithm/algpseudocode, listings, xcolor,
-   eurosym, pifont, hyperref, bookmark, cleveref.
+   amsthm, enumitem, unicode-math, geometry, csquotes, tocloft,
+   marginnote, needspace, etoolbox, algorithm/algpseudocode, listings,
+   xcolor, eurosym, pifont, hyperref, bookmark, cleveref.
 13. Un overfull que sobreviva a `\emergencystretch` se arregla
    reescribiendo la frase (más corta, con palabras de separación), no
    tocando la plantilla. Como umbral: más de 100 pt es un error que
@@ -349,6 +393,15 @@ Bloque para pegar en el prompt junto al material de la asignatura:
    redefine `\vec` a subrayado); nunca `\overrightarrow` ni negrita.
 16. Un tema = una `\section` (que abre página nueva automáticamente);
    no metas `\clearpage` manuales entre temas.
+17. Listas formateadas: enumitem por claves (`label=\alph*)`,
+   `label=\arabic*)`, …); el atajo `[a)]` no es válido y falla (a
+   veces en silencio, dentro de los entornos tipo teorema).
+18. No toques el bloque `\setmathfont[range=…]` del preámbulo: solo
+   admite nombres primarios de la tabla de unicode-math, los mapeos
+   cambian entre versiones y solo Overleaf es fiable. Si un símbolo
+   sale en blanco («Missing character»), añade el nombre primario
+   verificado conforme a la receta de los «Detalles técnicos»; jamás
+   metas `\smallsetminus` dentro (error duro).
 
 ## Recomendaciones
 

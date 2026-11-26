@@ -28,6 +28,15 @@
 % LaTeX y el mensaje del error no dice cuál es el nombre correcto.
 \setcounter{MaxMatrixCols}{20}
 \usepackage{amsthm} %Para entornos de teoremas, demostraciones y demás.
+% Listas con formato propio (enumitem): \begin{enumerate}[label=\alph*)]
+% y demás claves. OJO: el atajo «[a)]» del viejo paquete enumerate NO
+% es sintaxis de enumitem (error «a) undefined»), y sin un paquete de
+% listas el fallo es doblemente traicionero: «Something's
+% wrong--perhaps a missing \item» que señala al \item y no al corchete;
+% y dentro de los entornos tipo teorema de esta plantilla ni siquiera
+% da error: compone «[a)]» como texto y numera los ítems 1., 2., 3.
+% sin avisar de nada. La sintaxis larga de enumitem es la única válida.
+\usepackage{enumitem}
 \usepackage{tikz} %Para grafos y figuras.
 % Imprescindible con babel «spanish»: neutraliza los caracteres
 % abreviados activos (<, >, ", .) DENTRO de TikZ. Sin esta librería,
@@ -301,6 +310,14 @@
 \renewcommand{\algorithmicdo}{\textbf{hacer}}
 \renewcommand{\algorithmicend}{\textbf{fin}}
 \renewcommand{\algorithmicreturn}{\textbf{devolver}}
+% El flotante «algorithm» no declara nivel de marcador PDF, lo que
+% hacía aparecer el aviso informativo «bookmark level for unknown
+% algorithm defaults to 0» y dejaba el marcador del algoritmo sin
+% nivel asignado; fijándolo aquí queda bien anidado en el índice del
+% PDF y el aviso desaparece.
+\makeatletter
+\providecommand{\toclevel@algorithm}{0}
+\makeatother
 % FIN========== Entornos para algoritmos en pseudocódigo ==========
 
 \usepackage{geometry} %Para ajustar márgenes
@@ -343,9 +360,13 @@
 
 % El texto en Fira Sans es ancho y, con mates inline de Fira Math, a
 % veces una línea no encuentra ningún buen punto de corte y desborda
-% («Overfull \hbox»). \emergencystretch solo entra en juego en
-% peor ANTES que desbordar el margen.
-\setlength{\emergencystretch}{1em}
+% («Overfull \hbox»). \emergencystretch solo entra en juego en esos
+% casos: añade elásticidad extra a la justificación para que la línea
+% encuentre corte en vez de desbordar el margen (a cambio de un
+% espaciado entre palabras algo más holgado en esa línea). No
+% arregla los displays: una fila de align que no cabe hay que
+% partirla con \\.
+\setlength{\emergencystretch}{3em}
 
 %"fontspec" package settings
 % Texto sin serifa, a juego con la fuente del código (Fira Mono).
@@ -359,6 +380,18 @@
 % sustituye a amssymb; todos los símbolos proceden de la fuente
 % matemática que se fija aquí.
 \usepackage{unicode-math}
+% El bloque range= de abajo exige unicode-math v0.8r (13/08/2023,
+% TeX Live 2023+): es la versión en la que \setminus pasa de U+29F5
+% (REVES SOLIDUS, un slot que ni Fira Math ni Latin Modern Math traen)
+% a U+2216 (SET MINUS, presente en Latin Modern Math). En
+% distribuciones anteriores, \setminus saldría en blanco. Overleaf
+% cumple de sobra; el guard solo AVISA en instalaciones viejas.
+\makeatletter
+\@ifpackagelater{unicode-math}{2023/08/13}{}{%
+  \PackageWarningNoLine{Plantilla_apuntes}{Se necesita unicode-math
+    v0.8r (13/08/2023, TeX Live 2023+; Overleaf actual la trae)
+    para el bloque range= de \string\setminus}}%
+\makeatother
 \setmathfont{Fira Math}
 % Fira Math no cubre todo el repertorio matemático: faltan, entre
 % otros, \bigcup, \bigcap, \setminus, \triangle, \triangleleft,
@@ -372,7 +405,10 @@
 % range= deben ir los nombres primarios de unicode-math (\triangle
 % es alias, su nombre primario es \bigtriangleup); \smallsetminus no
 % hace falta en el range: unicode-math lo construye por su cuenta
-% (rota otro glifo) y funciona siempre; y las variantes \subseteqq,
+% (rota un «menos») y funciona siempre, y por eso mismo NO puede ir
+% NUNCA dentro de un range=: no es un símbolo de la tabla de
+% unicode-math, sino un compuesto, y range= da un error duro
+% («bad-cs-in-range»); y las variantes \subseteqq,
 % \supseteqq, \subsetneqq y \supsetneqq no están NI en Fira Math ni
 % en Latin Modern Math: usar \subseteq, \subsetneq, etc.
 \setmathfont[range={\bigcap,\bigcup,\setminus,\star,\bigtriangleup,
@@ -433,6 +469,14 @@
   tabsize=4,
 }
 \renewcommand{\lstlistingname}{Fragmento de código}
+% Gemelo del fix del flotante «algorithm»: el flotante «lstlisting»
+% de listings tampoco declara nivel de marcador PDF y hyperref
+% avisaba «bookmark level for unknown lstlisting defaults to 0»;
+% fijándolo aquí, el marcador del fragmento de código queda bien
+% anidado en el índice del PDF y el aviso desaparece.
+\makeatletter
+\providecommand{\toclevel@lstlisting}{0}
+\makeatother
 
 % ========== Variables globales ==========
 % Cada asignatura es un proyecto aparte: cambia aquí el título, la
